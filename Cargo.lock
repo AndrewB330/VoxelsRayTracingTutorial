@@ -2935,10 +2935,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 
 [[package]]
+name = "vox-format"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b41c07d4bfb99286592fe2fbe25022360a305e5c800e1bc93d9db280c24db1aa"
+dependencies = [
+ "byteorder",
+ "log",
+ "thiserror",
+]
+
+[[package]]
 name = "voxels_tutorial"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "vox-format",
 ]
 
 [[package]]

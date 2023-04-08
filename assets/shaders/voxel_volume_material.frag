@@ -38,7 +38,7 @@ struct HitInfo {
 };
 
 const ivec3 ZERO = ivec3(0.0);
-const float EPS = 1e-5;
+const float EPS = 5e-5;
 const vec3 LIGHT_DIR = vec3(0.1, -0.5, 0.3);
 
 bool checkBoundaries(ivec3 cell) {
@@ -80,7 +80,7 @@ bool trace(vec3 origin, vec3 direction, out HitInfo info) {
     bool hit = false;
 
     // Primitive raytracing - fixed length steps along the ray.
-    for (int i = 0; i < 128 && checkBoundaries(cell); i++) {
+    for (int i = 0; i < 256 && checkBoundaries(cell); i++) {
         if (hit = getVoxel(cell) != 0) break;
 
         // Calculate time until next intersection per component.
