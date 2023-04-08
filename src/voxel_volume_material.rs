@@ -12,6 +12,8 @@ use bevy::{
 pub struct VoxelVolumeMaterial {
     #[uniform(0)]
     pub size: UVec3,
+    #[storage(1, buffer)]
+    pub voxel_data: Buffer,
 }
 
 /// The Material trait is very configurable, but comes with sensible defaults for all methods.

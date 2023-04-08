@@ -22,6 +22,14 @@ layout(set = 2, binding = 0) uniform Mesh {
 
 layout(set = 1, binding = 0) uniform ivec3 size;
 
+layout(set = 1, binding = 1) buffer VolumeData {
+    uint data[];
+};
+
+uint getVoxel(ivec3 cell) {
+    return data[cell.x * size.y * size.z + cell.y * size.z + cell.z];
+}
+
 void main() {
     o_Color = vec4(v_VoxelSpace % vec3(1.0), 1.0);
 }

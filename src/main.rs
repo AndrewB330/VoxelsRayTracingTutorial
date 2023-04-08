@@ -1,4 +1,10 @@
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    render::{
+        render_resource::{BufferInitDescriptor, BufferUsages},
+        renderer::RenderDevice,
+    },
+};
 
 mod voxel_volume_material;
 use voxel_volume_material::*;
@@ -16,12 +22,42 @@ fn main() {
         .run();
 }
 
+pub fn create_sphere_voxels(grid_size: u32, radius: u32) -> Vec<u32> {
+    let mut v = vec![0; (grid_size * grid_size * grid_size) as usize];
+
+    for x in 0..grid_size {
+        for y in 0..grid_size {
+            for z in 0..grid_size {
+                let dx = x.abs_diff(grid_size / 2);
+                let dy = y.abs_diff(grid_size / 2);
+                let dz = z.abs_diff(grid_size / 2);
+                if dx * dx + dy * dy + dz * dz < radius * radius {
+                    v[(x * grid_size * grid_size + y * grid_size + z) as usize] = 0xFFFFFF;
+                }
+            }
+        }
+    }
+
+    v
+}
+
+pub fn voxels_to_data(volume: Vec<u32>) -> Vec<u8> {
+    let mut data = vec![];
+
+    for val in volume {
+        data.append(&mut val.to_le_bytes().to_vec());
+    }
+
+    data
+}
+
 /// set up a simple 3D scene
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut voxel_materials: ResMut<Assets<VoxelVolumeMaterial>>,
+    render_device: Res<RenderDevice>,
 ) {
     // plane
     commands.spawn(PbrBundle {
@@ -31,11 +67,22 @@ fn setup(
     });
 
     let size = 16;
+    let sphere = create_sphere_voxels(size, 7);
+    let data = voxels_to_data(sphere);
+
+    let buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
+        label: None,
+        contents: &data,
+        usage: BufferUsages::STORAGE | BufferUsages::COPY_DST,
+    });
 
     // cube
     commands.spawn(MaterialMeshBundle {
         mesh: meshes.add(Mesh::from(shape::Cube { size: size as f32 })),
-        material: voxel_materials.add(VoxelVolumeMaterial { size: UVec3::splat(size) }),
+        material: voxel_materials.add(VoxelVolumeMaterial {
+            size: UVec3::splat(size),
+            voxel_data: buffer,
+        }),
         transform: Transform::from_xyz(0.0, 0.5, 0.0).with_scale(Vec3::splat(1.0 / size as f32)),
         ..default()
     });
