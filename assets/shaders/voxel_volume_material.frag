@@ -50,21 +50,20 @@ void main() {
     ray_point += ray_direction * EPS;
 
     ivec3 cell = ivec3(floor(ray_point));
-    ivec3 previous_cell = cell;
+    vec3 time = vec3(0.0);
 
     // Primitive raytracing - fixed length steps along the ray.
     for (int i = 0; i < 128 && checkBoundaries(cell); i++) {
         if (getVoxel(cell) != 0) {
             // Hit! Use normal apprxoimation as a color.
-            ivec3 normal = abs(previous_cell - cell);
-            o_Color = vec4( /* Color: */ vec3(normal), /* Alpha: */ 1.0);
+            vec3 normal = step(time.xyz, time.yzx) * step(time.xyz, time.zxy);
+            o_Color = vec4( /* Color: */ normal, /* Alpha: */ 1.0);
             return;
         }
 
         // Calculate time until next intersection per component.
-        vec3 time = (cell + next_cell_delta - ray_point) * ray_direction_inv;
+        time = (cell + next_cell_delta - ray_point) * ray_direction_inv;
         ray_point += ray_direction * min(min(time.x, time.y), time.z);
-        previous_cell = cell;
         cell = ivec3(floor(ray_point));
     }
 
