@@ -9,7 +9,10 @@ use bevy::{
 // This is the struct that will be passed to your shader
 #[derive(AsBindGroup, Clone, TypeUuid)]
 #[uuid = "3ed3d2a6-0117-4cd9-a517-ffc4312b574f"]
-pub struct VoxelVolumeMaterial {}
+pub struct VoxelVolumeMaterial {
+    #[uniform(0)]
+    pub size: UVec3,
+}
 
 /// The Material trait is very configurable, but comes with sensible defaults for all methods.
 /// You only need to implement functions for features that need non-default behavior. See the Material api docs for details!

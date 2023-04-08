@@ -5,6 +5,7 @@ layout(location = 1) in vec3 Vertex_Normal;
 layout(location = 2) in vec2 Vertex_Uv;
 
 layout(location = 0) out vec2 v_Uv;
+layout(location = 1) out vec3 v_VoxelSpace;
 
 layout(set = 0, binding = 0) uniform CameraViewProj {
     mat4 ViewProj;
@@ -22,7 +23,10 @@ layout(set = 2, binding = 0) uniform Mesh {
     uint flags;
 };
 
+layout(set = 1, binding = 0) uniform uvec3 size;
+
 void main() {
     v_Uv = Vertex_Uv;
+    v_VoxelSpace = Vertex_Position + size / 2.0;
     gl_Position = ViewProj * Model * vec4(Vertex_Position, 1.0);
 }

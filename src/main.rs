@@ -29,11 +29,14 @@ fn setup(
         material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
         ..default()
     });
+
+    let size = 16;
+
     // cube
     commands.spawn(MaterialMeshBundle {
-        mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
-        material: voxel_materials.add(VoxelVolumeMaterial {}),
-        transform: Transform::from_xyz(0.0, 0.5, 0.0),
+        mesh: meshes.add(Mesh::from(shape::Cube { size: size as f32 })),
+        material: voxel_materials.add(VoxelVolumeMaterial { size: UVec3::splat(size) }),
+        transform: Transform::from_xyz(0.0, 0.5, 0.0).with_scale(Vec3::splat(1.0 / size as f32)),
         ..default()
     });
     // light
