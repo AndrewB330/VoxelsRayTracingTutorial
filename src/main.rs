@@ -1,8 +1,12 @@
 use bevy::prelude::*;
 
+mod voxel_volume_material;
+use voxel_volume_material::*;
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugin(MaterialPlugin::<VoxelVolumeMaterial>::default())
         .add_startup_system(setup)
         .add_system(rotate_camera)
         .run();
@@ -13,6 +17,7 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut voxel_materials: ResMut<Assets<VoxelVolumeMaterial>>,
 ) {
     // plane
     commands.spawn(PbrBundle {
@@ -21,9 +26,9 @@ fn setup(
         ..default()
     });
     // cube
-    commands.spawn(PbrBundle {
+    commands.spawn(MaterialMeshBundle {
         mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
-        material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
+        material: voxel_materials.add(VoxelVolumeMaterial {}),
         transform: Transform::from_xyz(0.0, 0.5, 0.0),
         ..default()
     });
