@@ -32,7 +32,13 @@ pub fn create_sphere_voxels(grid_size: u32, radius: u32) -> Vec<u32> {
                 let dy = y.abs_diff(grid_size / 2);
                 let dz = z.abs_diff(grid_size / 2);
                 if dx * dx + dy * dy + dz * dz < radius * radius {
-                    v[(x * grid_size * grid_size + y * grid_size + z) as usize] = 0xFFFFFF;
+                    // Some arbitrary coloring scheme.
+                    let index = (x * grid_size * grid_size + y * grid_size + z) as usize;
+                    if dx + dy + dz <= (radius as f32 * 1.4) as u32 {
+                        v[index] = 0xff6b21;
+                    } else {
+                        v[index] = 0xffc821;
+                    }
                 }
             }
         }
