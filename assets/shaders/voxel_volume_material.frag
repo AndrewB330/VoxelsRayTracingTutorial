@@ -41,6 +41,26 @@ bool checkBoundaries(ivec3 cell) {
     return all(lessThan(cell, size)) && all(greaterThanEqual(cell, ZERO));
 }
 
+float computeAo(vec3 pos, ivec3 cell, ivec3 local_normal) {
+    cell += local_normal;
+
+    vec3 mask = abs(local_normal);
+    vec2 uv = vec2(dot(mask * pos.yzx, vec3(1.0)), dot(mask * pos.zxy, vec3(1.0))) % vec2(1.0);
+    
+    ivec3 dir1 = ivec3((step(0.5, uv.x) * 2.0 - 1.0) * mask.zxy);
+    ivec3 dir2 = ivec3((step(0.5, uv.y) * 2.0 - 1.0) * mask.yzx);
+    
+    float side1 =  float(checkBoundaries(cell + dir1) && getVoxel(cell + dir1) != 0u);
+    float side2 =  float(checkBoundaries(cell + dir2) && getVoxel(cell + dir2) != 0u);
+    float corner = float(checkBoundaries(cell + dir1 + dir2) && getVoxel(cell + dir1 + dir2) != 0u);
+
+    vec4 ambient = 1.0 - vec4(0.0, side1 * 0.5, (side1 + side2 + max(side1*side2, corner)) * 0.25, side2 * 0.5);
+    
+    vec2 corner_uv = abs(uv - 0.5) * 2.0;
+    float interpAo = mix(mix(ambient.x, ambient.y, corner_uv.x), mix(ambient.w, ambient.z, corner_uv.x), corner_uv.y);
+    return pow(interpAo, 0.5);
+}
+
 void main() {
     vec3 ray_origin = (transpose(InverseTransposeModel) * InverseView * vec4(0.0, 0.0, 0.0, 1.0)).xyz + size / 2.0;
     vec3 ray_point = v_VoxelSpace;
@@ -79,5 +99,6 @@ void main() {
 
     float n_dot_l = clamp(dot(normal, -normalize(LIGHT_DIR)), 0.0, 1.0);
     float intensity = mix(0.2, 1.0, n_dot_l);
-    o_Color = vec4(intensity * color, 1.0);
+    float ambient_occlusion = computeAo(ray_point, cell, ivec3(normal));
+    o_Color = vec4(intensity * ambient_occlusion * color, 1.0);
 }
