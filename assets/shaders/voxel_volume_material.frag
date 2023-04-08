@@ -126,6 +126,10 @@ void main() {
     // Voxel color.
     vec3 color = info.color;
 
+    // Shadow ray.
+    if (trace(info.pos + n * EPS, l, info)) {
+        light_intensity = 0.2;
+    }
+
     o_Color = vec4(light_intensity * ambient_occlusion * color, 1.0);
 }
-    
