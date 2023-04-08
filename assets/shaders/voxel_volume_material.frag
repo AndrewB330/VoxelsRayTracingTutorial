@@ -44,6 +44,8 @@ void main() {
     vec3 ray_origin = (transpose(InverseTransposeModel) * InverseView * vec4(0.0, 0.0, 0.0, 1.0)).xyz + size / 2.0;
     vec3 ray_point = v_VoxelSpace;
     vec3 ray_direction = normalize(ray_point - ray_origin);
+    vec3 ray_direction_inv = 1.0 / ray_direction;
+    vec3 next_cell_delta = 0.5 + sign(ray_direction) * (0.5 + EPS);
 
     ray_point += ray_direction * EPS;
 
@@ -60,7 +62,7 @@ void main() {
         }
 
         // Calculate time until next intersection per component.
-        vec3 time = (cell + (0.5 + sign(ray_direction) * (0.5 + EPS)) - ray_point) / ray_direction;
+        vec3 time = (cell + next_cell_delta - ray_point) * ray_direction_inv;
         ray_point += ray_direction * min(min(time.x, time.y), time.z);
         previous_cell = cell;
         cell = ivec3(floor(ray_point));
