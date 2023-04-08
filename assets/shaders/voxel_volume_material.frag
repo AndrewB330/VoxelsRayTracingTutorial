@@ -30,6 +30,34 @@ uint getVoxel(ivec3 cell) {
     return data[cell.x * size.y * size.z + cell.y * size.z + cell.z];
 }
 
+const ivec3 ZERO = ivec3(0.0);
+
+bool checkBoundaries(ivec3 cell) {
+    // Check boundaries:
+    // 1. All voxel space coordinate components should be less than corresponding size component.
+    // 2. All voxel space coordinate components should be greater or equal than zero.
+    return all(lessThan(cell, size)) && all(greaterThanEqual(cell, ZERO));
+}
+
 void main() {
-    o_Color = vec4(v_VoxelSpace % vec3(1.0), 1.0);
+    vec3 ray_origin = (transpose(InverseTransposeModel) * InverseView * vec4(0.0, 0.0, 0.0, 1.0)).xyz + size / 2.0;
+    vec3 ray_point = v_VoxelSpace;
+    vec3 ray_direction = normalize(ray_point - ray_origin);
+
+    ivec3 cell = ivec3(floor(ray_point));
+
+    // Primitive raytracing - fixed length steps along the ray.
+    for (int i = 0; i < 128; i++) {
+        if (checkBoundaries(cell) && getVoxel(cell) != 0) {
+            // Hit! Use number of iterations as grayscale color value.
+            o_Color = vec4( /* Color: */ vec3(1.0) * i / 128.0, /* Alpha: */ 1.0);
+            return;
+        }
+
+        ray_point += ray_direction * 0.1;
+        cell = ivec3(floor(ray_point));
+    }
+
+    // We did not find any hit - discard this fragment.
+    discard;
 }
