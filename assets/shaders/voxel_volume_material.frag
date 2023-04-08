@@ -31,6 +31,7 @@ uint getVoxel(ivec3 cell) {
 }
 
 const ivec3 ZERO = ivec3(0.0);
+const float EPS = 1e-5;
 
 bool checkBoundaries(ivec3 cell) {
     // Check boundaries:
@@ -44,12 +45,14 @@ void main() {
     vec3 ray_point = v_VoxelSpace;
     vec3 ray_direction = normalize(ray_point - ray_origin);
 
+    ray_point += ray_direction * EPS;
+
     ivec3 cell = ivec3(floor(ray_point));
     ivec3 previous_cell = cell;
 
     // Primitive raytracing - fixed length steps along the ray.
-    for (int i = 0; i < 128; i++) {
-        if (checkBoundaries(cell) && getVoxel(cell) != 0) {
+    for (int i = 0; i < 128 && checkBoundaries(cell); i++) {
+        if (getVoxel(cell) != 0) {
             // Hit! Use normal apprxoimation as a color.
             ivec3 normal = abs(previous_cell - cell);
             o_Color = vec4( /* Color: */ vec3(normal), /* Alpha: */ 1.0);
