@@ -45,16 +45,19 @@ void main() {
     vec3 ray_direction = normalize(ray_point - ray_origin);
 
     ivec3 cell = ivec3(floor(ray_point));
+    ivec3 previous_cell = cell;
 
     // Primitive raytracing - fixed length steps along the ray.
     for (int i = 0; i < 128; i++) {
         if (checkBoundaries(cell) && getVoxel(cell) != 0) {
-            // Hit! Use number of iterations as grayscale color value.
-            o_Color = vec4( /* Color: */ vec3(1.0) * i / 128.0, /* Alpha: */ 1.0);
+            // Hit! Use normal apprxoimation as a color.
+            ivec3 normal = abs(previous_cell - cell);
+            o_Color = vec4( /* Color: */ vec3(normal), /* Alpha: */ 1.0);
             return;
         }
 
         ray_point += ray_direction * 0.1;
+        previous_cell = cell;
         cell = ivec3(floor(ray_point));
     }
 
