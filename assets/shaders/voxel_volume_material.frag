@@ -60,7 +60,7 @@ void main() {
         }
 
         // Calculate time until next intersection per component.
-        vec3 time = (cell + 1 - ray_point) / ray_direction;
+        vec3 time = (cell + (0.5 + sign(ray_direction) * (0.5 + EPS)) - ray_point) / ray_direction;
         ray_point += ray_direction * min(min(time.x, time.y), time.z);
         previous_cell = cell;
         cell = ivec3(floor(ray_point));
